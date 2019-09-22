@@ -7,6 +7,7 @@ import shutil
 import mimetypes
 import json
 import html
+import argparse
 from pathlib import Path
 from http import server
 
@@ -59,7 +60,7 @@ class Handler(server.BaseHTTPRequestHandler):
         path = path.relative_to(Path.cwd())
         logging.info(path)
 
-        if not path.exists():
+        if not path.exists() or path.is_dir():
             self.send_response(http.HTTPStatus.NOT_FOUND)
             self.end_headers()
             return
@@ -123,9 +124,13 @@ class Handler(server.BaseHTTPRequestHandler):
 
 
 def main():
-    addr = '', 8009
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--port', type=int, default=8000)
+    args = parser.parse_args()
+
+    addr = '', args.port
     with server.ThreadingHTTPServer(addr, Handler) as s:
-        logging.info(f'Serving at {s.socket.getsockname()}')
+        logging.info(f'Serving at http://localhost:{args.port}')
         s.serve_forever()
 
 
@@ -133,5 +138,4 @@ if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
         format='%(levelname).1s %(asctime)s %(module)10.10s:%(lineno)-4d (%(threadName)-11.11s) %(message)s')
-    logging.info('hi')
     main()
