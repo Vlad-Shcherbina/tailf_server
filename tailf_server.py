@@ -101,7 +101,7 @@ class Handler(server.BaseHTTPRequestHandler):
                     data = data.encode('ascii')
                     try:
                         self.wfile.write(b'event: append\ndata: ' + data + b'\n\n')
-                    except ConnectionAbortedError:
+                    except (ConnectionAbortedError, BrokenPipeError):
                         logging.warning('connection aborted')
                         return
                     last_send_time = time.time()
@@ -110,7 +110,7 @@ class Handler(server.BaseHTTPRequestHandler):
                     try:
                         logging.info(f'keep alive {path}')
                         self.wfile.write(b': keep alive\n\n')
-                    except ConnectionAbortedError:
+                    except (ConnectionAbortedError, BrokenPipeError):
                         logging.warning('connection aborted')
                         return
                     last_send_time = time.time()
